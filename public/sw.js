@@ -23,3 +23,23 @@ self.addEventListener('message', (event) => {
     }, delay);
   }
 });
+
+// public/sw.js
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      if (clientList.length > 0) {
+        let client = clientList[0];
+        client.focus();
+        // Send a message to the page to trigger the voice
+        return client.postMessage({ 
+          type: 'SPEAK_TASK', 
+          text: event.notification.body 
+        });
+      }
+      return clients.openWindow('/');
+    })
+  );
+});
