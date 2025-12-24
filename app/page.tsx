@@ -22,16 +22,17 @@ export default function Home() {
   }, [tasks]);
 
   // 3. Notification & Voice Engine
+ // 3. Notification & Voice Engine
   useEffect(() => {
-    // Request permission for browser alerts
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
     }
 
     const speakTask = (text: string) => {
+      window.speechSynthesis.cancel(); // Clear queue
       const utterance = new SpeechSynthesisUtterance(`Reminder: ${text}`);
       utterance.rate = 0.9; 
-      window.speechSynthesis.speak(utterance); // Convert text to audible voice
+      window.speechSynthesis.speak(utterance);
     };
 
     const interval = setInterval(() => {
@@ -41,37 +42,40 @@ export default function Home() {
         if (task.time && !task.notified) {
           const taskTime = new Date(task.time);
 
-          // Check if current time matches task time
           if (
             taskTime.getHours() === now.getHours() && 
             taskTime.getMinutes() === now.getMinutes()
           ) {
-            // Visual Alert
-            new Notification("🔔 Task Due Now", {
-              body: task.task,
-              requireInteraction: true, // Keep alert visible
-            });
+            // A. Visual Notification
+            if (Notification.permission === "granted") {
+               new Notification("🔔 Task Due Now", {
+                body: task.task,
+                requireInteraction: true,
+              });
+            } else {
+               // Fallback for mobile if notifications are blocked
+               alert(`REMINDER: ${task.task}`); 
+            }
 
-            // Audible Voice
+            // B. Audible Voice
             speakTask(task.task);
 
-            // Phone Vibration
+            // C. Vibration
             if ("vibrate" in navigator) {
               navigator.vibrate([200, 100, 200]);
             }
 
-            // Mark as notified so it doesn't loop every 30s
+            // D. Mark as notified
             const updated = [...tasks];
             updated[index].notified = true;
-            setTasks(updated);
+            setTasks([...updated]); // Use spread to ensure state update
           }
         }
       });
-    }, 30000); // Heartbeat check every 30 seconds
+    }, 10000); // Check every 10 seconds for mobile responsiveness
 
     return () => clearInterval(interval);
   }, [tasks]);
-
   const handleNewTasks = (newTasks: any[]) => {
     setTasks((prev) => [...prev, ...newTasks]);
   };
