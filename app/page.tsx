@@ -21,7 +21,7 @@ export default function Home() {
     }
   }, [tasks]);
 
-  // 3. Notification & Voice Engine
+  
  // 3. Notification & Voice Engine
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "granted") {
@@ -76,6 +76,14 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [tasks]);
+
+  useEffect(() => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      console.log('Service Worker Registered!', reg);
+    });
+  }
+}, []);
   const handleNewTasks = (newTasks: any[]) => {
     setTasks((prev) => [...prev, ...newTasks]);
   };
@@ -86,12 +94,31 @@ export default function Home() {
     setTasks(updatedTasks);
   };
 
-  const updateTaskTime = (index: number, newTime: string) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].time = newTime || null;
-    updatedTasks[index].notified = false; // Reset notification flag if time changes
-    setTasks(updatedTasks);
-  };
+ const updateTaskTime = (index: number, newTime: string) => {
+  const updatedTasks = [...tasks];
+  updatedTasks[index].time = newTime || null;
+  setTasks(updatedTasks);
+  localStorage.setItem('voice-tasks', JSON.stringify(updatedTasks));
+
+  if (newTime) {
+    const targetTime = new Date(newTime).getTime();
+    const now = new Date().getTime();
+    const delay = targetTime - now;
+
+    if (delay > 0) {
+      // Send the task to the "Ghost Script" (Service Worker)
+      navigator.serviceWorker.ready.then((registration) => {
+        navigator.serviceWorker.controller?.postMessage({
+          type: 'SCHEDULE_NOTIFICATION',
+          title: '⏰ Task Reminder',
+          body: updatedTasks[index].task,
+          delay: delay
+        });
+      });
+      alert("Reminder scheduled in background!");
+    }
+  }
+};
 
   const deleteTask = (index: number) => {
     const updated = tasks.filter((_, i) => i !== index);
@@ -141,8 +168,14 @@ export default function Home() {
               {t.time ? (
                 <div className="flex flex-col gap-2">
                   <p className="text-slate-400 text-sm flex items-center gap-1">
-                    ⏰ {new Date(t.time).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
-                  </p>
+  ⏰ {new Date(t.time).toLocaleString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    hour12: true 
+  })}
+</p>
                   <button onClick={() => updateTaskTime(i, "")} className="text-xs text-slate-500 hover:text-blue-400 underline w-fit">
                     Change Time
                   </button>
