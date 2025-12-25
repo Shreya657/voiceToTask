@@ -24,13 +24,20 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// public/sw.js
 self.addEventListener('notificationclick', (event) => {
+  const taskText = event.notification.body; 
   event.notification.close();
+  
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       if (clientList.length > 0) {
         clientList[0].focus();
-        clientList[0].postMessage({ type: 'SPEAK_TASK', text: event.notification.body });
+        // 🚀 Tell Next.js to "Complete" this task
+        clientList[0].postMessage({ 
+          type: 'COMPLETE_TASK', 
+          text: taskText 
+        });
       } else {
         clients.openWindow('/');
       }
