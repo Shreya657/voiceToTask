@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react';
 import Recorder from './component/Recorder';
+import Snowfall from 'react-snowfall';
 
 export default function Home() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -119,7 +120,16 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-900 p-8 flex flex-col items-center">
+    <main className="min-h-screen snow-bg p-8 flex flex-col items-center">
+      <Snowfall 
+      color="#ffffff"
+      snowflakeCount={150}
+      style={{
+        position: 'fixed',
+        width: '100vw',
+        height: '100vh',
+      }}
+    />
       <h1 className="text-4xl font-bold text-white mb-12 mt-8">Voice To-Do 2025</h1>
       <Recorder onTasksReceived={handleNewTasks} />
       
