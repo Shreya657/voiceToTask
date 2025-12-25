@@ -6,14 +6,6 @@ export default function Home() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-
-   const speakTask = (text: string) => {
-      window.speechSynthesis.cancel(); // Clear queue
-      const utterance = new SpeechSynthesisUtterance(`Reminder: ${text}`);
-      utterance.rate = 0.9; 
-      window.speechSynthesis.speak(utterance);
-    };
-
   // 1. Load tasks from localStorage on first render
   useEffect(() => {
     const savedTasks = localStorage.getItem('voice-tasks');
@@ -36,7 +28,12 @@ export default function Home() {
       Notification.requestPermission();
     }
 
-   
+    const speakTask = (text: string) => {
+      window.speechSynthesis.cancel(); // Clear queue
+      const utterance = new SpeechSynthesisUtterance(`Reminder: ${text}`);
+      utterance.rate = 0.9; 
+      window.speechSynthesis.speak(utterance);
+    };
 
     const interval = setInterval(() => {
       const now = new Date();
@@ -90,16 +87,6 @@ export default function Home() {
   const handleNewTasks = (newTasks: any[]) => {
     setTasks((prev) => [...prev, ...newTasks]);
   };
-
-  useEffect(() => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data.type === 'SPEAK_TASK') {
-        speakTask(event.data.text);
-      }
-    });
-  }
-}, []);
 
   const updateTask = (index: number, field: string, value: string) => {
     const updatedTasks = [...tasks];
