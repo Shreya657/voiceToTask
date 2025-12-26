@@ -134,7 +134,7 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen snow-bg p-8 flex flex-col items-center overflow-hidden">
+    <main className="relative min-h-screen snow-bg p-0 flex flex-col items-center overflow-hidden">
       <Snowfall 
         color="#ffffff"
         snowflakeCount={150}
@@ -142,13 +142,13 @@ export default function Home() {
       />
       
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center">
-        <h1 className="text-4xl font-bold text-white mb-12 mt-8">Voice To-Do 2025</h1>
+        <h1 className="text-3xl font-bold text-white mb-12 mt-8">Voice To-Task</h1>
         <Recorder onTasksReceived={handleNewTasks} />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-12">
           {tasks.map((t, i) => (
             <div key={i} className="group relative p-6 bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-700 shadow-xl transition-all hover:border-blue-500">
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-4 right-4 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button onClick={() => setEditingIndex(editingIndex === i ? null : i)} className="text-slate-500 hover:text-blue-400">
                   {editingIndex === i ? '✅' : '✏️'}
                 </button>

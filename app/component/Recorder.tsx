@@ -22,7 +22,7 @@ export default function Recorder({ onTasksReceived }: { onTasksReceived: (tasks:
   
 
   return (
-    <div className="flex flex-col items-center gap-4 p-8 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20">
+    <div className="flex flex-col items-center gap-4 p-6 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20">
       <button
         onMouseDown={start}
         onMouseUp={stop}
